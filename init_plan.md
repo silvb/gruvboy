@@ -38,35 +38,32 @@ Development machine:
 Operating environment:
 - OnionOS v4.3.1-1.
 - Existing Linux environment.
-- SDL version to be determined in Phase 0.
+- SDL 1.2, with a bundled build that includes the `miao` audio driver.
 
 Hardware capabilities:
 - Four front-facing action buttons (digital, so they carry no velocity information).
 - D-pad.
-- L/R shoulder buttons.
-- Start and Select.
+- L/R and L2/R2 shoulder buttons.
+- Start, Select and Menu.
 - Built-in display.
 - Headphone output.
 - SD card storage.
 
 The application must use the existing audio output. No external hardware should be necessary.
 
-#### Assumptions to verify in Phase 0
+#### Platform findings
 
-These come from memory and must not be treated as fact until confirmed:
-- The stock environment is built around a customised SDL 1.2, with SDL2 available through community ports.
-- Audio passes through a vendor audio layer and Onion's audio server.
-- Onion intercepts the Menu button.
-- Apps live in `/mnt/SDCARD/App/<name>/`.
-- The LittleGPTracker Miyoo build is a useful reference for audio and packaging.
+See `docs/phase0.md` for details, the click test and the on-device checklist. Audio behaviour and latency have not yet been measured on the device.
+
+Onion uses Select + Start + L or R to change the CPU clock, so Gruvboy must never use that combination.
 
 ### 4. Technical Architecture
 
 | Component | Approach |
 |---|---|
 | Language | Restrained C++17: no exceptions or allocation on the real-time path |
-| Platform layer | Thin audio, input and video interfaces; SDL version decided in Phase 0 |
-| Audio output | SDL audio callback or direct vendor API, decided by latency measurements |
+| Platform layer | Thin audio, input and video interfaces over SDL 1.2; direct `/dev/input/event0` for buttons on the Miyoo |
+| Audio output | SDL audio callback through the `miao` driver, or the direct vendor API if latency measurements require it |
 | Sample format | 16-bit PCM WAV, mono or stereo |
 | Sequencer | Custom, sample-accurate, runs inside the audio callback |
 | Project format | Versioned JSON, using one vendored library |
@@ -260,7 +257,9 @@ Each hardware test requires moving the SD card, so:
 
 #### Phase 0: Platform Investigation
 
-1. Confirm each assumption listed in section 3.
+**Status:** research and test app complete. Waiting on device measurements, as described in `docs/phase0.md`.
+
+1. Confirm platform assumptions.
 2. Set up the cross-compilation toolchain on macOS.
 3. Identify how Onion apps are packaged and launched.
 4. Study how these projects handle audio and packaging:

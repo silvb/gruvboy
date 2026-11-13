@@ -1,0 +1,6 @@
+{
+  "label": "Gruvboy Click Test",
+  "icon": "icon.png",
+  "launch": "launch.sh",
+  "description": "Measures button-to-sound latency"
+}
